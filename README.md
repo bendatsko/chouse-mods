@@ -16,6 +16,13 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
 pip install foobar
 ```
 
+
+sudo screen -dm bash ServerStart.bat
+
+
+sudo screen -dm bash ServerStart.bat
+
+
 ## Usage
 
 ```python
