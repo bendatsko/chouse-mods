@@ -24,7 +24,7 @@ win10toast==0.9
 macos-notifications==0.1.4
 """
 
-# Install required libraries from the embedded requirements
+# Install requirements.txt from multi-line string because I'm lazy
 def install_requirements():
     requirements = REQUIREMENTS.strip().splitlines()
     for requirement in requirements:
@@ -34,44 +34,32 @@ def install_requirements():
             __import__(package_spec.split('==')[0].replace('-', '_'))
         except ImportError:
             # Install via pip if not already available
-            print(f"[INFO] Installing '{package_spec}'...")
-            subprocess.check_call([sys.executable, "-m", "pip", "install", requirement])
-            print(f"[INFO] '{package_spec}' installed successfully.")
+            try:
+                print(f"[INFO] Installing '{package_spec}'...")
+                subprocess.check_call([sys.executable, "-m", "pip", "install", requirement])
+                print(f"[INFO] '{package_spec}' installed successfully.")
+            except subprocess.CalledProcessError as e:
+                print(f"[ERROR] Failed to install '{package_spec}': {e}. Continuing...")
 
-# Ensure all requirements are installed before importing
 install_requirements()
 
-# Now import the necessary libraries
+# Import libraries
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+
 try:
     from win10toast import ToastNotifier  # For Windows notifications
 except ImportError:
-    pass
+    ToastNotifier = None
+
 try:
-    from mac_notifications import client  # For macOS notifications
+    from mac_notifications import client as mac_client  # For macOS notifications
 except ImportError:
-    pass
+    mac_client = None
 
-# Notification function
-def notify_user(title, message):
-    os_name = platform.system()
-    try:
-        if os_name == "Windows":
-            toaster = ToastNotifier()
-            toaster.show_toast(title, message, duration=5)
-        elif os_name == "Darwin":  # macOS
-            client.send(message=message, title=title, subtitle="Minecraft Mod Updater")
-        else:
-            print(f"[INFO] Notifications not supported on {os_name}.")
-    except ImportError:
-        print(f"[ERROR] Notification library not found for {os_name}. Please install the required library.")
-        if os_name == "Windows":
-            print("Install it with `pip install win10toast`.")
-        elif os_name == "Darwin":
-            print("Install it with `pip install macos-notifications`.")
 
-# Clone or update the repository
+
+# Clone/update mod folder repository
 def update_repo():
     global last_pull_time
     current_time = time.time()
@@ -89,7 +77,7 @@ def update_repo():
         print("[INFO] Pulling the latest changes from the repository...")
         subprocess.run(['git', '-C', str(LOCAL_REPO_PATH), 'pull'], check=True)
 
-# Replace the mods folder
+# Replace mods folder
 def replace_mods_folder():
     if MODS_FOLDER_PATH.exists():
         if TARGET_MODS_FOLDER.exists():
@@ -98,10 +86,8 @@ def replace_mods_folder():
         print(f"[INFO] Copying '{MODS_FOLDER_PATH}' to '{TARGET_MODS_FOLDER}'...")
         shutil.copytree(MODS_FOLDER_PATH, TARGET_MODS_FOLDER)
         print("[INFO] Mods folder updated successfully!")
-        notify_user("Mods Update", "Your mods folder has been updated successfully!")
     else:
         print(f"[ERROR] Mods folder not found in the repository at {MODS_FOLDER_PATH}.")
-        notify_user("Mods Update Error", f"Mods folder not found in the repository at {MODS_FOLDER_PATH}.")
 
 # Event handler class
 class MinecraftInstanceEventHandler(FileSystemEventHandler):
