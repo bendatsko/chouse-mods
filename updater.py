@@ -1,12 +1,10 @@
 import os
 import subprocess
 import sys
-import shutil
 import platform
 from pathlib import Path
+import shutil
 import time
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 
 # Constants
 GITHUB_REPO_URL = "https://github.com/bendatsko/chouse-mods.git"
@@ -19,40 +17,50 @@ TARGET_MODS_FOLDER = SCRIPT_DIR / "mods"
 COOLDOWN_PERIOD = 60  # in seconds
 last_pull_time = 0
 
-# Dependencies required for the script
-REQUIRED_LIBRARIES = [
-    "watchdog",
-    "win10toast; sys_platform == 'win32'",
-    "macos-notifications; sys_platform == 'darwin'"
-]
+# Dependencies (requirements.txt content)
+REQUIREMENTS = """
+watchdog==4.0.0
+win10toast==0.9
+macos-notifications==0.1.4
+"""
 
-# Install required libraries
-def install_and_import(package_spec):
-    """Install and import a package given its name."""
-    package_name = package_spec.split(';')[0].strip()
-    try:
-        __import__(package_name)
-    except ImportError:
-        print(f"[INFO] Installing '{package_name}'...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", package_spec])
-        print(f"[INFO] '{package_name}' installed successfully.")
-        __import__(package_name)
+# Install required libraries from the embedded requirements
+def install_requirements():
+    requirements = REQUIREMENTS.strip().splitlines()
+    for requirement in requirements:
+        package_spec = requirement.split(';')[0].strip()
+        try:
+            # Attempt to import the package directly
+            __import__(package_spec.split('==')[0].replace('-', '_'))
+        except ImportError:
+            # Install via pip if not already available
+            print(f"[INFO] Installing '{package_spec}'...")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", requirement])
+            print(f"[INFO] '{package_spec}' installed successfully.")
 
-# Install all required dependencies
-def install_dependencies():
-    for package_spec in REQUIRED_LIBRARIES:
-        install_and_import(package_spec)
+# Ensure all requirements are installed before importing
+install_requirements()
+
+# Now import the necessary libraries
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+try:
+    from win10toast import ToastNotifier  # For Windows notifications
+except ImportError:
+    pass
+try:
+    from mac_notifications import client  # For macOS notifications
+except ImportError:
+    pass
 
 # Notification function
 def notify_user(title, message):
     os_name = platform.system()
     try:
         if os_name == "Windows":
-            from win10toast import ToastNotifier
             toaster = ToastNotifier()
             toaster.show_toast(title, message, duration=5)
         elif os_name == "Darwin":  # macOS
-            from mac_notifications import client
             client.send(message=message, title=title, subtitle="Minecraft Mod Updater")
         else:
             print(f"[INFO] Notifications not supported on {os_name}.")
@@ -124,5 +132,4 @@ def monitor_minecraft_instance():
 
 # Run the updater
 if __name__ == "__main__":
-    install_dependencies()
     monitor_minecraft_instance()
