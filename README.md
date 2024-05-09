@@ -7,7 +7,7 @@ To install mods on the server notify clients of an update. To update the modpack
 
 ## Client
 1. Go into Curseforge and click on and "open folder".
-2. Place `updater-client.py` in the folder it takes you to. There should already be a mods folder in there.
+2. Place `updater-client.py` into the folder that opens (chouse server). There should already be a mods folder in there.
 3. Whenever someone says they've updated the modpack, run `updater-client.py` with python.
 4. Now press play in your minecraft launcher and press "play game". If something is wrong, that's probably not good. 
 
