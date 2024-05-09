@@ -17,10 +17,13 @@ pip install foobar
 ```
 
 
-sudo screen -dm bash ServerStart.bat
+`sudo screen -dm bash ServerStart.bat`
 
 
-sudo screen -dm bash ServerStart.bat
+`sudo screen -dm bash ServerStart.bat`
+
+
+`sudo screen -dm bash updater-server.sh`
 
 
 ## Usage
