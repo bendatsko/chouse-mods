@@ -20,31 +20,28 @@ COOLDOWN_PERIOD = 60  # in seconds
 last_pull_time = 0
 
 # Dependencies required for the script
-REQUIRED_LIBRARIES = {
-    'watchdog': 'watchdog',
-    'win10toast': 'win10toast',
-    'macos-notifications': 'macos-notifications'
-}
+REQUIRED_LIBRARIES = [
+    "watchdog",
+    "win10toast; sys_platform == 'win32'",
+    "macos-notifications; sys_platform == 'darwin'"
+]
 
 # Install required libraries
-def install_and_import(package_name, import_name=None):
-    import_name = import_name or package_name
+def install_and_import(package_spec):
+    """Install and import a package given its name."""
+    package_name = package_spec.split(';')[0].strip()
     try:
-        __import__(import_name)
+        __import__(package_name)
     except ImportError:
         print(f"[INFO] Installing '{package_name}'...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", package_name])
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package_spec])
         print(f"[INFO] '{package_name}' installed successfully.")
-        __import__(import_name)
+        __import__(package_name)
 
 # Install all required dependencies
 def install_dependencies():
-    os_name = platform.system()
-    install_and_import('watchdog')
-    if os_name == "Windows":
-        install_and_import('win10toast')
-    elif os_name == "Darwin":  # macOS
-        install_and_import('macos-notifications')
+    for package_spec in REQUIRED_LIBRARIES:
+        install_and_import(package_spec)
 
 # Notification function
 def notify_user(title, message):
@@ -129,5 +126,3 @@ def monitor_minecraft_instance():
 if __name__ == "__main__":
     install_dependencies()
     monitor_minecraft_instance()
-
-# b
