@@ -3,51 +3,13 @@
 
 To install mods on the server notify clients of an update, commit your updated `mods` folder to the `master` branch. 
 
-
-## `Client` Branch (Syncs client mods with GitHub repo)
-- 
-
-
-## `Server` Branch (Syncs server mods with GitHub repo)
-
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
-
-```bash
-pip install foobar
-```
+## Client
+Place `updater-client.py` in `.minecraft` folder. Double click before pressing "play game" in the launcher.
 
 
+## Server stuff
+Start server
 `sudo screen -dm bash ServerStart.bat`
 
-
-`sudo screen -dm bash ServerStart.bat`
-
-
+Start server mod updater
 `sudo screen -dm bash updater-server.sh`
-
-
-## Usage
-
-```python
-import foobar
-
-# returns 'words'
-foobar.pluralize('word')
-
-# returns 'geese'
-foobar.pluralize('goose')
-
-# returns 'phenomenon'
-foobar.singularize('phenomena')
-```
-
-## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first
-to discuss what you would like to change.
-
-Please make sure to update tests as appropriate.
-
-## License
-
-[MIT](https://choosealicense.com/licenses/mit/)
