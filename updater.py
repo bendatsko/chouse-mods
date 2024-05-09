@@ -47,3 +47,4 @@ if __name__ == "__main__":
     update_repo()
     replace_mods_folder()
     print("\n[INFO] Update complete.\n")
+    input("Press any key to exit...")
