@@ -13,6 +13,10 @@ To install mods on the server notify clients of an update. To update the modpack
 
 
 ## Server stuff
+
+`updater-server.py` just runs in the background and pulls from this repo whenever there are any updates. 
+Keep in mind the server still needs to be restarted manually upon commits to to avoid accidental restarts. 
+
 Start server
 `sudo screen -dm bash ServerStart.bat`
 
